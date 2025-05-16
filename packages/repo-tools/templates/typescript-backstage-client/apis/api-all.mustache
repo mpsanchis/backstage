@@ -120,7 +120,7 @@ export class DefaultApiClient {
                 ...request.header,
                 {{/hasHeaderParams}}
                 'Content-Type': 'application/json',
-                ...(options?.token && { Authorization: `Bearer ${options?.token}` }),
+                ...(options?.token && { Authorization: `Bearer ${options?.token}` }), <!--basically hardcodes Bearer header if token is passed-->
             },
             method: '{{httpMethod}}',
             {{#hasBodyParam}} body: JSON.stringify(request.body), {{/hasBodyParam}}
