@@ -26,7 +26,14 @@ export type TypedResponse<T> = Omit<Response, 'json'> & {
  * @public
  */
 export interface RequestOptions {
-  token?: string;
+    {{#isBearer}}
+        token?: string;
+    {{/isBearer}}
+
+    {{#isBasic}}
+        username?: string;
+        password?: string;
+    {{/isBasic}}
 }
 {{#apis}}
 {{#operations}}
@@ -120,7 +127,18 @@ export class DefaultApiClient {
                 ...request.header,
                 {{/hasHeaderParams}}
                 'Content-Type': 'application/json',
-                ...(options?.token && { Authorization: `Bearer ${options?.token}` }),
+                {{#authMethods}}
+                    {{#isBasic}}
+                        {{#isBasicBasic}}
+                                ...(options?.username && options?.password && {
+                                Authorization: `Basic ${Buffer.from(`${options?.username}:${options?.password}`).toString('base64')}`,
+                                }),
+                        {{/isBasicBasic}}
+                        {{#isBasicBearer}}
+                                ...(options?.token && { Authorization: `Bearer ${options?.token}` }),
+                        {{/isBasicBearer}}
+                    {{/isBasic}}
+                {{/authMethods}}
             },
             method: '{{httpMethod}}',
             {{#hasBodyParam}} body: JSON.stringify(request.body), {{/hasBodyParam}}
